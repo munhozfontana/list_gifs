@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:finder_gifs/GifPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:transparent_image/transparent_image.dart';
@@ -115,13 +116,24 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (context, index) {
         if (_search == null || index < snapshot.data["data"].length) {
           return GestureDetector(
-              child: FadeInImage.memoryNetwork(
-            placeholder: kTransparentImage,
-            image: snapshot.data["data"][index]["images"]["fixed_height"]
-                ["url"],
-            height: 300.0,
-            fit: BoxFit.cover,
-          ));
+            child: FadeInImage.memoryNetwork(
+              placeholder: kTransparentImage,
+              image: snapshot.data["data"][index]["images"]["fixed_height"]
+                  ["url"],
+              height: 300.0,
+              fit: BoxFit.cover,
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GifPage(
+                    snapshot.data["data"][index],
+                  ),
+                ),
+              );
+            },
+          );
         } else {
           return Container(
             child: GestureDetector(
