@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
           "https://api.giphy.com/v1/gifs/trending?api_key=mc6wcQs7bRC9xp5VfCl6nxna7unqMS0S&limit=25&rating=G");
     } else {
       response = await http.get(
-          "https://api.giphy.com/v1/gifs/search?api_key=mc6wcQs7bRC9xp5VfCl6nxna7unqMS0S&q=$_search&limit=25&offset=$_offset&rating=G&lang=pt");
+          "https://api.giphy.com/v1/gifs/search?api_key=mc6wcQs7bRC9xp5VfCl6nxna7unqMS0S&q=$_search&limit=19&offset=$_offset&rating=G&lang=pt");
     }
     return json.decode(response.body);
   }
@@ -45,7 +45,24 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.black,
       body: Column(
         children: <Widget>[
-          Pesquisa(),
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: TextField(
+              decoration: InputDecoration(
+                labelText: "Pesquisar",
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(gapPadding: 10),
+              ),
+              style: TextStyle(color: Colors.white, fontSize: 18.0),
+              textAlign: TextAlign.center,
+              onSubmitted: (text) {
+                setState(() {
+                  _search = text;
+                  _offset = 0;
+                });
+              },
+            ),
+          ),
           Expanded(
             child: FutureBuilder(
               future: _getGifs(),
@@ -68,7 +85,6 @@ class _HomePageState extends State<HomePage> {
                     } else {
                       return _createGifTable(context, snapshot);
                     }
-                    ;
                 }
               },
             ),
@@ -76,6 +92,14 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  int _getCount(List data) {
+    if (_search == null) {
+      return data.length;
+    } else {
+      return data.length + 1;
+    }
   }
 
   Widget _createGifTable(BuildContext context, AsyncSnapshot snapshot) {
@@ -86,8 +110,35 @@ class _HomePageState extends State<HomePage> {
         crossAxisSpacing: 10.0,
         mainAxisSpacing: 10.0,
       ),
-      itemCount: snapshot.data["data"].length,
+      itemCount: _getCount(snapshot.data["data"]),
       itemBuilder: (context, index) {
+        if (_search == null || index < snapshot.data["data"].length) {
+        } else {
+          return Container(
+            child: GestureDetector(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 70.0,
+                  ),
+                  Text(
+                    "Carregar mais...",
+                    style: TextStyle(color: Colors.white, fontSize: 22.0),
+                  )
+                ],
+              ),
+              onTap: () {
+                setState(() {
+                  _offset += 19;
+                });
+              },
+            ),
+          );
+        }
+
         return GestureDetector(
           child: Image.network(
             snapshot.data["data"][index]["images"]["fixed_height"]["url"],
@@ -96,24 +147,6 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
-    );
-  }
-}
-
-class Pesquisa extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(10.0),
-      child: TextField(
-        decoration: InputDecoration(
-          labelText: "Pesquisar",
-          labelStyle: TextStyle(color: Colors.white),
-          border: OutlineInputBorder(gapPadding: 10),
-        ),
-        style: TextStyle(color: Colors.white, fontSize: 18.0),
-        textAlign: TextAlign.center,
-      ),
     );
   }
 }
