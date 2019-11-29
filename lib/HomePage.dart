@@ -45,19 +45,74 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.black,
       body: Column(
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: "Pesquisar",
-                labelStyle: TextStyle(color: Colors.white),
-                border: OutlineInputBorder(),
-              ),
-              style: TextStyle(color: Colors.white, fontSize: 10.0),
-              textAlign: TextAlign.center,
+          Pesquisa(),
+          Expanded(
+            child: FutureBuilder(
+              future: _getGifs(),
+              builder: (context, snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                  case ConnectionState.none:
+                    return Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        strokeWidth: 5.0,
+                      ),
+                    );
+                  default:
+                    if (snapshot.hasError) {
+                      return Container();
+                    } else {
+                      return _createGifTable(context, snapshot);
+                    }
+                    ;
+                }
+              },
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _createGifTable(BuildContext context, AsyncSnapshot snapshot) {
+    return GridView.builder(
+      padding: EdgeInsets.all(10.0),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10.0,
+        mainAxisSpacing: 10.0,
+      ),
+      itemCount: snapshot.data["data"].length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          child: Image.network(
+            snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+            height: 300.0,
+            fit: BoxFit.cover,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class Pesquisa extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(10.0),
+      child: TextField(
+        decoration: InputDecoration(
+          labelText: "Pesquisar",
+          labelStyle: TextStyle(color: Colors.white),
+          border: OutlineInputBorder(gapPadding: 10),
+        ),
+        style: TextStyle(color: Colors.white, fontSize: 18.0),
+        textAlign: TextAlign.center,
       ),
     );
   }
