@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:transparent_image/transparent_image.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -113,6 +114,14 @@ class _HomePageState extends State<HomePage> {
       itemCount: _getCount(snapshot.data["data"]),
       itemBuilder: (context, index) {
         if (_search == null || index < snapshot.data["data"].length) {
+          return GestureDetector(
+              child: FadeInImage.memoryNetwork(
+            placeholder: kTransparentImage,
+            image: snapshot.data["data"][index]["images"]["fixed_height"]
+                ["url"],
+            height: 300.0,
+            fit: BoxFit.cover,
+          ));
         } else {
           return Container(
             child: GestureDetector(
@@ -138,14 +147,6 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         }
-
-        return GestureDetector(
-          child: Image.network(
-            snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-            height: 300.0,
-            fit: BoxFit.cover,
-          ),
-        );
       },
     );
   }
